@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Questionnaire Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --border-radius: 18px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .chat-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+            max-height: 700px;
+            transition: var(--transition);
+            flex: 1;
+        }
+
+        .chat-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header img, .bot-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-header .status {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .chat-header-right i {
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: var(--transition);
+        }
+
+        .chat-header-right i:hover {
+            color: var(--success-color);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fc;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            position: relative;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            max-width: 80%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .bot-message .message-bubble {
+            background-color: white;
+            color: var(--dark-color);
+            border-bottom-left-radius: 5px;
+            margin-left: 15px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .user-message .message-bubble {
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 1px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+
+        .option-button {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .option-button:hover, .option-button.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .chat-input {
+            padding: 15px 20px;
+            background-color: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .chat-input button i {
+            font-size: 18px;
+        }
+
+        .chat-input .attach-btn {
+            background-color: transparent;
+            color: #999;
+            margin-right: 5px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .chat-input .attach-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: #eee;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .chat-container {
+                height: 85vh;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+            }
+            
+            header {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .options-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .option-button {
+                width: 100%;
+            }
+        }
+
+        /* Success screen */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+
+        .success-screen h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .success-screen p {
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Website Questionnaire</h1>
+            <p>Let our bot guide you through the process of gathering information for your new website</p>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress-bar"></div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <h2>Website Assistant</h2>
+                        <div class="status">Online</div>
+                    </div>
+                </div>
+                <div class="chat-header-right">
+                    <i class="fas fa-info-circle" title="About"></i>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will appear here -->
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <span class="attach-btn"><i class="fas fa-paperclip"></i></span>
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Type your answer here..." 
+                    autocomplete="off"
+                >
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="success-screen" id="success-screen">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Thank You for Your Responses!</h2>
+            <p>We've successfully collected all the information needed for your website project. Our team will review your responses and get back to you within 2 business days to discuss the next steps.</p>
+            <a href="#" class="btn" id="restart-btn">Start Over</a>
+        </div>
+    </div>
+
+    <script>
+        // Questionnaire flow - Enhanced with more conversational elements
+        const questions = [
+            {
+                id: 'welcome',
+                message: "👋 Hi there! I'm your website project assistant. I'll help you provide all the information we need to create your perfect website. This should take about 5-10 minutes. Ready to get started?",
+                options: ['Yes, let\'s begin!', 'What information will you collect?'],
+                nextId: {
+                    'Yes, let\'s begin!': 'client_name',
+                    'What information will you collect?': 'explain_process'
+                }
+            },
+            {
+                id: 'explain_process',
+                message: "I'll ask you about your business details, the type of website you want, your target audience, design preferences, and content needs. This helps us create a website that perfectly matches your vision. Ready to begin now?",
+                options: ['Yes, I\'m ready', 'Maybe later'],
+                nextId: {
+                    'Yes, I\'m ready': 'client_name',
+                    'Maybe later': 'maybe_later'
+                }
+            },
+            {
+                id: 'maybe_later',
+                message: "No problem! You can come back anytime to complete the questionnaire. Just refresh this page when you're ready.",
+                final: true
+            },
+            {
+                id: 'client_name',
+                message: "Great! Let's start with your name.",
+                nextId: 'client_phone'
+            },
+            {
+                id: 'client_phone',
+                message: "Nice to meet you, {client_name}! 👋 What's the best phone number to reach you?",
+                nextId: 'client_email'
+            },
+            {
+                id: 'client_email',
+                message: "Perfect. What email address should we use for project communications?",
+                nextId: 'contact_time'
+            },
+            {
+                id: 'contact_time',
+                message: "When is the best time to contact you throughout the project?",
+                options: ['Morning', 'Afternoon', 'Evening', 'Anytime'],
+                nextId: 'business_name'
+            },
+            {
+                id: 'business_name',
+                message: "Now, let's talk about your business. What's the name of your business?",
+                nextId: 'business_industry'
+            },
+            {
+                id: 'business_industry',
+                message: "What industry is {business_name} in?",
+                nextId: 'website_type'
+            },
+            {
+                id: 'website_type',
+                message: "Are we building a brand new website or redesigning an existing one?",
+                options: ['Brand new website', 'Redesigning existing site'],
+                nextId: 'domain_info'
+            },
+            {
+                id: 'domain_info',
+                message: "Do you already have a domain name (website address)?",
+                options: ['Yes', 'No', 'Not sure'],
+                nextId: 'business_description'
+            },
+            {
+                id: 'business_description',
+                message: "In a few sentences, how would you describe what your business does? Think of this as your 30-second elevator pitch.",
+                nextId: 'business_tagline'
+            },
+            {
+                id: 'business_tagline',
+                message: "Do you have a slogan, tagline, or motto that clearly describes what benefits or features you offer?",
+                nextId: 'page_count'
+            },
+            {
+                id: 'page_count',
+                message: "How many pages do you envision for your website?",
+                options: ['Just the standard pages (Home, About, Services, Contact)', '5-7 pages', '8-10 pages', 'More than 10 pages'],
+                nextId: 'services'
+            },
+            {
+                id: 'services',
+                message: "What are the main services or products your business provides? (List up to 5)",
+                nextId: 'unique_selling'
+            },
+            {
+                id: 'unique_selling',
+                message: "What makes your services unique compared to competitors?",
+                nextId: 'problems_solved'
+            },
+            {
+                id: 'problems_solved',
+                message: "What specific problems do your products/services aim to solve for your customers?",
+                nextId: 'target_audience'
+            },
+            {
+                id: 'target_audience',
+                message: "Who is your ideal customer? Tell me about their age, interests, needs, etc.",
+                nextId: 'audience_info'
+            },
+            {
+                id: 'audience_info',
+                message: "What kind of information will your target audience be looking for on your website?",
+                nextId: 'visitor_actions'
+            },
+            {
+                id: 'visitor_actions',
+                message: "What do you expect visitors to do when they visit your website? What's their #1 goal?",
+                options: ['Contact for services', 'Make a purchase', 'Find information', 'Book an appointment', 'Subscribe to newsletter', 'Other (please specify)'],
+                nextId: 'websites_like'
+            },
+            {
+                id: 'websites_like',
+                message: "Are there any websites you really like? What specifically attracts you to them?",
+                nextId: 'competitors'
+            },
+            {
+                id: 'competitors',
+                message: "Who are your main competitors? (If you know their websites, please include them)",
+                nextId: 'features'
+            },
+            {
+                id: 'features',
+                message: "What specific features do you want on your website?",
+                options: ['Contact form', 'Image gallery', 'Blog section', 'Booking system', 'E-commerce/shopping cart', 'Customer testimonials', 'Video content', 'Social media integration', 'Newsletter signup', 'Other (please specify)'],
+                multiSelect: true,
+                nextId: 'colors'
+            },
+            {
+                id: 'colors',
+                message: "What colors do you want used on your website?",
+                options: ['Blues', 'Greens', 'Reds/Oranges', 'Neutrals (beige, gray, etc.)', 'Black and white', 'My brand colors (please specify)', 'Not sure - need recommendations'],
+                nextId: 'fonts'
+            },
+            {
+                id: 'fonts',
+                message: "Do you have any font preferences in mind?",
+                options: ['Modern/Clean', 'Classic/Traditional', 'Bold/Strong', 'Elegant/Sophisticated', 'Playful/Creative', 'No preference'],
+                nextId: 'not_wanted'
+            },
+            {
+                id: 'not_wanted',
+                message: "Is there anything you definitely DON'T want on your website?",
+                nextId: 'content_creation'
+            },
+            {
+                id: 'content_creation',
+                message: "Will you be providing all the website content, or do you need help from a copywriter?",
+                options: ['I\'ll provide all content', 'I need copywriting help', 'A mix of both'],
+                nextId: 'images'
+            },
+            {
+                id: 'images',
+                message: "Do you have high-quality images ready for your website?",
+                options: ['Yes, I have all images', 'Some, but need more', 'No, will need stock photos', 'Will need professional photography'],
+                nextId: 'final_questions'
+            },
+            {
+                id: 'final_questions',
+                message: "Is there anything else you'd like to share about your website project that wasn't covered in this questionnaire?",
+                nextId: 'thank_you'
+            },
+            {
+                id: 'thank_you',
+                message: "Thank you for providing all this information! Our team will review everything and get back to you within 2 business days to discuss the next steps.",
+                final: true
+            }
+        ];
+
+        // Chat elements
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const progressBar = document.getElementById('progress-bar');
+        const successScreen = document.getElementById('success-screen');
+        const restartBtn = document.getElementById('restart-btn');
+        const chatContainer = document.querySelector('.chat-container');
+
+        // Current question tracking
+        let currentQuestionId = 'welcome';
+        let userResponses = {};
+        let selectedOptions = [];
+        let totalQuestions = questions.length;
+
+        // Function to update progress bar
+        function updateProgressBar() {
+            const currentIndex = questions.findIndex(q => q.id === currentQuestionId);
+            const progress = (currentIndex / (totalQuestions - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Add a message to the chat
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            if (!isUser) {
+                const botAvatar = document.createElement('div');
+                botAvatar.className = 'bot-avatar';
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-robot';
+                botAvatar.appendChild(icon);
+                messageDiv.appendChild(botAvatar);
+            }
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            
+            // Replace placeholders with actual responses
+            let processedContent = content;
+            Object.keys(userResponses).forEach(key => {
+                const placeholder = `{${key}}`;
+                if (processedContent.includes(placeholder)) {
+                    processedContent = processedContent.replace(placeholder, userResponses[key]);
+                }
+            });
+            
+            messageBubble.textContent = processedContent;
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            
+            const now = new Date();
+            messageTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageBubble.appendChild(messageTime);
+            messageDiv.appendChild(messageBubble);
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Auto scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'inline-flex';
+            chatMessages.appendChild(typingIndicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        // Add option buttons
+        function addOptions(options, multiSelect = false) {
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option;
+                
+                if (multiSelect) {
+                    button.addEventListener('click', () => {
+                        button.classList.toggle('selected');
+                        
+                        if (button.classList.contains('selected')) {
+                            if (!selectedOptions.includes(option)) {
+                                selectedOptions.push(option);
+                            }
+                        } else {
+                            const index = selectedOptions.indexOf(option);
+                            if (index > -1) {
+                                selectedOptions.splice(index, 1);
+                            }
+                        }
+                    });
+                } else {
+                    button.addEventListener('click', () => {
+                        handleUserInput(option);
+                        optionsContainer.remove();
+                    });
+                }
+                
+                optionsContainer.appendChild(button);
+            });
+            
+            if (multiSelect) {
+                const submitBtn = document.createElement('button');
+                submitBtn.className = 'option-button';
+                submitBtn.textContent = 'Submit Selection';
+                submitBtn.style.backgroundColor = '#4cc9f0';
+                submitBtn.style.color = 'white';
+                submitBtn.style.marginTop = '10px';
+                submitBtn.style.width = '100%';
+                
+                submitBtn.addEventListener('click', () => {
+                    if (selectedOptions.length > 0) {
+                        handleUserInput(selectedOptions.join(', '));
+                        selectedOptions = [];
+                        optionsContainer.remove();
+                    }
+                });
+                
+                optionsContainer.appendChild(submitBtn);
+            }
+            
+            chatMessages.appendChild(optionsContainer);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Find question by ID
+        function findQuestionById(id) {
+            return questions.find(q => q.id === id);
+        }
+
+        // Show completion screen
+        function showCompletionScreen() {
+            chatContainer.style.display = 'none';
+            successScreen.style.display = 'block';
+            
+            // Store responses in localStorage
+            localStorage.setItem('websiteQuestionnaire', JSON.stringify(userResponses));
+            
+            // Here you would typically send the data to your server
+            console.log("Questionnaire completed with following responses:", userResponses);
+        }
+
+        // Handle user input
+        function handleUserInput(input) {
+            if (!input.trim()) return;
+            
+            // Display user message
+            addMessage(input, true);
+            
+            // Save response
+            userResponses[currentQuestionId] = input;
+            
+            // Get current question
+            const currentQuestion = findQuestionById(currentQuestionId);
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Determine next question
+            let nextQuestionId;
+            
+            if (currentQuestion.nextId && typeof currentQuestion.nextId === 'object') {
+                // If nextId is an object (for branching logic)
+                nextQuestionId = currentQuestion.nextId[input] || Object.values(currentQuestion.nextId)[0];
+            } else {
+                // If nextId is a simple string
+                nextQuestionId = currentQuestion.nextId;
+            }
+            
+            // Move to next question with delay for natural conversation feel
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                if (currentQuestion.final) {
+                    setTimeout(() => {
+                        showCompletionScreen();
+                    }, 1500);
+                    return;
+                }
+                
+                if (nextQuestionId) {
+                    currentQuestionId = nextQuestionId;
+                    const nextQuestion = findQuestionById(currentQuestionId);
+                    
+                    updateProgressBar();
+                    
+                    addMessage(nextQuestion.message);
+                    
+                    // Add options if available
+                    if (nextQuestion.options) {
+                        setTimeout(() => {
+                            addOptions(nextQuestion.options, nextQuestion.multiSelect);
+                        }, 500);
+                    }
+                }
+            }, 1000 + Math.random() * 1000); // Random delay between 1-2 seconds for more natural feel
+            
+            // Clear input field
+            userInput.value = '';
+        }
+
+        // Send button click
+        sendButton.addEventListener('click', () => {
+            const input = userInput.value.trim();
+            if (input) {
+                handleUserInput(input);
+            }
+        });
+
+        // Enter key press
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const input = userInput.value.trim();
+                if (input) {
+                    handleUserInput(input);
+                }
+            }
+        });
+
+        // Restart button
+        restartBtn.addEventListener('click', () => {
+            // Reset everything
+            chatMessages.innerHTML = '';
+            userResponses = {};
+            currentQuestionId = 'welcome';
+            
+            // Show chat container again
+            chatContainer.style.display = 'flex';
+            successScreen.style.display = 'none';
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            
+            // Start the conversation again
+            startConversation();
+        });
+
+        // Start the conversation
+        function startConversation() {
+            const firstQuestion = findQuestionById(currentQuestionId);
+            
+            setTimeout(() => {
+                addMessage(firstQuestion.message);
+                
+                if (firstQuestion.options) {
+                    setTimeout(() => {
+                        addOptions(firstQuestion.options);
+                    }, 500);
+                }
+            }, 500);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', startConversation);
+
+        // Save responses periodically
+        setInterval(() => {
+            if (Object.keys(userResponses).length > 0) {
+                localStorage.setItem('websiteQuestionnaireDraft', JSON.stringify(userResponses));
+            }
+        }, 10000); // Every 10 seconds
+    </script>
+</body>
+</html>
